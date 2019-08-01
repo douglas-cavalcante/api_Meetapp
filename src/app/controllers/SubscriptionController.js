@@ -20,7 +20,7 @@ class SubscriptionController {
               [Op.gt]: new Date(),
             },
           },
-          required: false,
+          required: true,
         },
       ],
       order: [[Meetup, 'date']],
