@@ -36,5 +36,6 @@ routes.get('/organizations', OrganizationController.index);
 
 /* subscriptions */
 routes.post('/meetups/:id/subscriptions', SubscriptionController.store);
+routes.get('/meetups/subscriptions', SubscriptionController.index);
 
 export default routes;
