@@ -1,11 +1,13 @@
+import { format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 import Subscription from '../models/Subscription';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
+import Mail from '../../lib/Mail';
 
 class SubscriptionController {
   async store(req, res) {
     const { userId } = req;
-    const { id } = req.params;
 
     const user = await User.findByPk(userId);
     const meetup = await Meetup.findByPk(req.params.id, {
@@ -46,6 +48,18 @@ class SubscriptionController {
     const subscription = await Subscription.create({
       meetup_id: meetup.id,
       user_id: user.id,
+    });
+
+    await Mail.sendMail({
+      to: `${user.name} <${user.email}>`,
+      subject: meetup.title,
+      template: 'subscrition',
+      context: {
+        user: user.name,
+        date: format(meetup.date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
+          locale: pt,
+        }),
+      },
     });
 
     return res.json(subscription);
