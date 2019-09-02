@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import Subscription from '../models/Subscription';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
-
+import File from '../models/File';
 import Queue from '../../lib/Queue';
 import SubscriptionMail from '../jobs/SubscriptionMail';
 
@@ -12,6 +12,7 @@ class SubscriptionController {
       where: {
         user_id: req.userId,
       },
+      attributes: ['id'],
       include: [
         {
           model: Meetup,
@@ -21,6 +22,14 @@ class SubscriptionController {
             },
           },
           required: true,
+          include: [
+            {
+              model: User,
+            },
+            {
+              model: File,
+            },
+          ],
         },
       ],
       order: [[Meetup, 'date']],
@@ -76,6 +85,16 @@ class SubscriptionController {
     await Queue.add(SubscriptionMail.key, { user, meetup });
 
     return res.json(subscription);
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const subscription = await Subscription.findByPk(id);
+
+    await subscription.destroy();
+
+    return res.send();
   }
 }
 

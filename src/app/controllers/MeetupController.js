@@ -21,18 +21,15 @@ class MeetupController {
     const meetups = await Meetup.findAll({
       where,
       attributes: ['id', 'date', 'location', 'title', 'description'],
-      limit: 10,
-      offset: (page - 1) * 10,
+
       include: [
         {
           model: User,
           attributes: ['id', 'name'],
-          include: [
-            {
-              model: File,
-              attributes: ['id', 'path', 'url'],
-            },
-          ],
+        },
+        {
+          model: File,
+          attributes: ['id', 'path', 'url'],
         },
       ],
     });
@@ -45,7 +42,7 @@ class MeetupController {
       description: Yup.string().required(),
       location: Yup.string().required(),
       date: Yup.date().required(),
-      file_id: Yup.number().required(),
+      file_id: Yup.string().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -54,6 +51,7 @@ class MeetupController {
 
     /* validacao da data */
 
+    console.log(parseISO(req.body.date));
     if (isBefore(parseISO(req.body.date), new Date())) {
       return res.status(400).json({ error: 'Meetup date invalid' });
     }
